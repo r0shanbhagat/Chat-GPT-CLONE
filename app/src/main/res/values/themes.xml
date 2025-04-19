@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.GemiAI" parent="android:Theme.Material.Light.NoActionBar">
+        <!--        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>-->
+        <!--        <item name="android:statusBarColor">@color/colorAccent</item>-->
+
+    </style>
+
+    <style name="Theme.SplashScreen" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+    </style>
+</resources>

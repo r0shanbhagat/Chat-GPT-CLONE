@@ -55,7 +55,7 @@ further defined and clarified by project maintainers.
 ### Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported by contacting the project team at [ahmedmahmoud.eltaher@gmail.com]. All
+reported by contacting the project team at [softengg.roshan@gmail.com]. All
 complaints will be reviewed and investigated and will result in a response that
 is deemed necessary and appropriate to the circumstances. The project team is
 obligated to maintain confidentiality with regard to the reporter of an incident.
@@ -67,4 +67,4 @@ members of the project's leadership.
 
 ### Attribution
 
-This Code of Conduct is adapted from the [Ahmed Eltaher][www.linkedin.com/in/ahmed-eltaher-65985252]
+This Code of Conduct is adapted from the [Roshan Bhagat][https://www.linkedin.com/in/roshan-bhagat]
