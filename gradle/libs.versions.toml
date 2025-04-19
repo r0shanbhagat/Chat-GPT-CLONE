@@ -22,6 +22,8 @@ generativeai = "0.9.0"
 material = "1.7.8"
 room = "2.7.0"
 timber = "5.0.1"
+gms = "4.4.2"
+firebaseBom = "33.12.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -37,6 +39,7 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coilCompose" }
+
 
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
@@ -55,10 +58,12 @@ navigation-compose = { module = "androidx.navigation:navigation-compose", versio
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastorePreferences" }
 androidx-datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "datastorePreferences" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
-
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+platform-firebase = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-remote-config = { module = "com.google.firebase:firebase-config" }
+firebase-analytic = { module = "com.google.firebase:firebase-analytics" }
 
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
 koin-test = { group = "io.insert-koin", name = "koin-test-junit4", version.ref = "koin" }
@@ -68,6 +73,7 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp-google = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
+gms = { id = "com.google.gms.google-services", version.ref = "gms" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 

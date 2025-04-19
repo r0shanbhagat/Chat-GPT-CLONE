@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -24,12 +25,20 @@ import com.codentmind.gemlens.R
 import com.codentmind.gemlens.presentation.navigation.SetApi
 import com.codentmind.gemlens.presentation.navigation.TopBar
 import com.codentmind.gemlens.presentation.theme.DecentBlue
+import com.codentmind.gemlens.utils.AnalyticsHelper.logButtonClick
+import com.codentmind.gemlens.utils.AnalyticsHelper.logScreenView
+import com.codentmind.gemlens.utils.Constant.Analytics.Companion.SCREEN_SETTINGS
 
 
 @ExperimentalMaterial3Api
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SettingsScreen(navController: NavHostController) {
+
+    LaunchedEffect(Unit) {
+        logScreenView(SCREEN_SETTINGS)
+    }
+
     Scaffold(
         topBar = {
             TopBar(
@@ -46,6 +55,7 @@ fun SettingsScreen(navController: NavHostController) {
         ) {
             Button(
                 onClick = {
+                    logButtonClick("Change Api Key")
                     navController.navigate(SetApi.route)
                 },
                 shape = RoundedCornerShape(10.dp),

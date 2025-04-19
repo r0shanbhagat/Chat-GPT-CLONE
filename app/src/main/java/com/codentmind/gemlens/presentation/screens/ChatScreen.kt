@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -45,6 +46,9 @@ import com.codentmind.gemlens.presentation.navigation.DrawerNav
 import com.codentmind.gemlens.presentation.navigation.MainTopBar
 import com.codentmind.gemlens.presentation.navigation.items
 import com.codentmind.gemlens.presentation.viewmodel.MessageViewModel
+import com.codentmind.gemlens.utils.AnalyticsHelper.logButtonClick
+import com.codentmind.gemlens.utils.AnalyticsHelper.logScreenView
+import com.codentmind.gemlens.utils.Constant.Analytics.Companion.SCREEN_CHAT
 import com.codentmind.gemlens.utils.ImageHelper
 import kotlinx.coroutines.launch
 
@@ -72,6 +76,10 @@ fun ChatScreen(viewModel: MessageViewModel, navController: NavHostController) {
     val imageLoader = ImageLoader.Builder(context).build()
 
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(key1 = true) {
+        logScreenView(SCREEN_CHAT)
+    }
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
@@ -108,6 +116,7 @@ fun ChatScreen(viewModel: MessageViewModel, navController: NavHostController) {
             },
             confirmButton = {
                 Button(onClick = {
+                    logButtonClick("ClearChat History")
                     viewModel.clearContext()
                     openDialog = false
                 }) {

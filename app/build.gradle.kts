@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.room)
+    alias(libs.plugins.gms)
 }
 
 android {
@@ -109,6 +110,13 @@ dependencies {
      ******************************* AI **************************************************
      **/
     implementation(libs.generativeai)
+
+    /**
+     ******************************* FIREBASE  **************************************************
+     **/
+    implementation(platform(libs.platform.firebase))
+    implementation(libs.firebase.remote.config)
+    implementation(libs.firebase.analytic)
 
     /**
      ******************************* DATABASE/DATA-STORE **************************************************

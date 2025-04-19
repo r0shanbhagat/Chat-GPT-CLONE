@@ -7,5 +7,6 @@ import android.graphics.Bitmap
  * @Author Roshan Bhagat
  */
 data class MediaModel(
-    val bitmap: Bitmap
+    val bitmap: Bitmap,
+    val imageUri: String = ""
 )

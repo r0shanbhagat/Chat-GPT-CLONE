@@ -5,6 +5,7 @@ import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.decode.SvgDecoder
 import com.codentmind.gemlens.di.module
+import com.codentmind.gemlens.utils.AnalyticsHelper
 import com.codentmind.gemlens.utils.AppSession
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
@@ -25,6 +26,7 @@ class GemLensApp : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
         INSTANCE = this
+        AnalyticsHelper.init(this)
         initKoin()
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())

@@ -2,6 +2,7 @@ package com.codentmind.gemlens.utils
 
 import android.graphics.Bitmap
 import com.codentmind.gemlens.GemLensApp
+import com.codentmind.gemlens.domain.model.MediaModel
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -55,7 +56,6 @@ private fun compressAndSaveImage(bitmap: Bitmap): File? {
             // Adjust the quality as needed (80 is a good starting point)
             bitmap.compress(Bitmap.CompressFormat.JPEG, 80, fos)
             fos.flush()
-            bitmap.recycle() // Recycle the bitmap
             return compressedImageFile
         }
     } catch (e: IOException) {
@@ -78,5 +78,40 @@ fun clearCacheDir() {
                 Timber.e("Failed to delete file: ${file.name}")
             }
         }
+    }
+}
+
+/**
+ * Get image uri list
+ *
+ * @param mediaList
+ * @return
+ */
+fun getImageUriList(mediaList: List<MediaModel>?): List<MediaModel> {
+    val imageUriList = mutableListOf<MediaModel>()
+    mediaList?.forEach { mediaModel ->
+        val imageUri = mediaModel.bitmap.getLocalImageUri()
+        if (imageUri.isNotEmpty()) {
+            imageUriList.add(MediaModel(mediaModel.bitmap, imageUri))
+        }
+    }
+    return imageUriList
+}
+
+/**
+ * Get image uri list
+ *
+ * @param mediaList
+ * @return
+ */
+fun recycleBitmap(mediaList: List<MediaModel>) {
+    try {
+        mediaList.forEach { mediaModel ->
+            if (!mediaModel.bitmap.isRecycled) {
+                mediaModel.bitmap.recycle()
+            }
+        }
+    } catch (e: Exception) {
+        Timber.e(e.message)
     }
 }

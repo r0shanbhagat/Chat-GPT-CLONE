@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import com.codentmind.gemlens.R
 import com.codentmind.gemlens.domain.model.MediaModel
 import com.codentmind.gemlens.presentation.viewmodel.MessageViewModel
+import com.codentmind.gemlens.utils.AnalyticsHelper.logButtonClick
 import com.codentmind.gemlens.utils.speakToAdd
 
 
@@ -72,18 +73,26 @@ fun TypingArea(
     var text by remember { mutableStateOf(TextFieldValue("")) }
     val isGenerating: Boolean? = chatUiState.messages.lastOrNull()?.isGenerating
 
+    fun sendQuery(userMessage: String) {
+        keyboardController?.hide()
+        focusManager.clearFocus()
+        logButtonClick("SendQuery")
+        viewModel.makeMultiTurnQuery(
+            context,
+            userMessage.trim(),
+            mediaList
+        )
+        text = TextFieldValue("")
+        mediaList?.clear()
+    }
+
     val speakLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
             val userMessage =
                 result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.get(0) ?: ""
-            text = TextFieldValue("")
-            viewModel.makeMultiTurnQuery(
-                context,
-                userMessage.trim(),
-                mediaList
-            )
+            sendQuery(userMessage)
         }
     }
 
@@ -216,14 +225,7 @@ fun TypingArea(
                                 .size(30.dp)
                                 .clickable {
                                     if (text.text.trim().isNotEmpty()) {
-                                        keyboardController?.hide()
-                                        focusManager.clearFocus()
-                                        viewModel.makeMultiTurnQuery(
-                                            context,
-                                            text.text.trim(),
-                                            mediaList
-                                        )
-                                        text = TextFieldValue("")
+                                        sendQuery(text.text)
                                     } else {
                                         context.speakToAdd(speakLauncher)
                                     }
@@ -254,4 +256,5 @@ fun TypingArea(
             )
         )
     }
+
 }

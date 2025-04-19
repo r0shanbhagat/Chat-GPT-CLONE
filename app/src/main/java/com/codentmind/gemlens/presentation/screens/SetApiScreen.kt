@@ -1,6 +1,7 @@
 package com.codentmind.gemlens.presentation.screens
 
 import android.annotation.SuppressLint
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.codentmind.gemlens.R
+import com.codentmind.gemlens.data.dataSource.remote.RemoteConfigHelper
 import com.codentmind.gemlens.presentation.navigation.Home
 import com.codentmind.gemlens.presentation.navigation.SetApi
 import com.codentmind.gemlens.presentation.navigation.TopBar
@@ -57,10 +61,14 @@ import com.codentmind.gemlens.presentation.theme.DecentBlue
 import com.codentmind.gemlens.presentation.theme.DecentGreen
 import com.codentmind.gemlens.presentation.theme.DecentRed
 import com.codentmind.gemlens.presentation.viewmodel.MessageViewModel
+import com.codentmind.gemlens.utils.AnalyticsHelper.logButtonClick
+import com.codentmind.gemlens.utils.AnalyticsHelper.logScreenView
+import com.codentmind.gemlens.utils.Constant.Analytics.Companion.SCREEN_API
 import com.codentmind.gemlens.utils.datastore
 import com.codentmind.gemlens.utils.getApiKey
 import com.codentmind.gemlens.utils.isValidString
 import kotlinx.coroutines.runBlocking
+import org.koin.compose.koinInject
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,6 +83,10 @@ fun SetApiScreen(
     val context = LocalContext.current
 
     var text by remember { mutableStateOf(TextFieldValue(runBlocking { context.datastore.getApiKey() })) }
+    LaunchedEffect(Unit) {
+        logScreenView(SCREEN_API)
+    }
+
     Scaffold(
         topBar = {
             TopBar(
@@ -170,14 +182,96 @@ fun SetApiScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.padding(30.dp))
+            TempApiKeyGenerator {
+                text = TextFieldValue(it)
+                viewModel.validate(context, it)
+            }
 
+            Spacer(modifier = Modifier.padding(25.dp))
             ApiSetupHelper()
 
         }
     }
 }
 
+
+@Composable
+fun TempApiKeyGenerator(onComplete: (String) -> Unit) {
+    val remoteConfig = koinInject<RemoteConfigHelper>()
+    val isLoading = remember { mutableStateOf(false) }
+    val context = LocalActivity.current
+    val linkedString = buildAnnotatedString {
+        withStyle(
+            style = SpanStyle(
+                color = MaterialTheme.colorScheme.primary
+            )
+        ) {
+            append("Don't have an API key? ")
+        }
+        pushStringAnnotation(
+            tag = "click",
+            annotation = "Generate Temporary Key."
+        )
+        withStyle(
+            style = SpanStyle(
+                color = Color(0xFF267BC4),
+                textDecoration = TextDecoration.None
+            )
+        ) {
+            append("Generate Temporary Key.")
+        }
+    }
+    val loaderString = buildAnnotatedString {
+        withStyle(
+            style = SpanStyle(
+                color = MaterialTheme.colorScheme.primary
+            )
+        ) {
+            append("Don't have an API key? ")
+        }
+    }
+    val annotatedString = remember { mutableStateOf(linkedString) }
+
+    Row(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 10.dp)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = if (isLoading.value) Arrangement.Start else Arrangement.SpaceEvenly
+    ) {
+        ClickableText(
+            modifier = Modifier.padding(10.dp),
+            text = annotatedString.value,
+            style = MaterialTheme.typography.labelMedium,
+            onClick = { offset ->
+                annotatedString.value.getStringAnnotations(
+                    tag = "click",
+                    start = offset,
+                    end = offset
+                ).firstOrNull()?.let {
+                    isLoading.value = true
+                    logButtonClick("Generate Temp Key")
+                    remoteConfig.fetchConfigData(context!!) {
+                        isLoading.value = false
+                        annotatedString.value = linkedString
+                        onComplete(it)
+                    }
+                }
+            }
+        )
+
+        if (isLoading.value) {
+            annotatedString.value = loaderString
+            CircularProgressIndicator(
+                strokeWidth = 2.dp,
+                color = Color.Black,
+                modifier = Modifier.size(20.dp),
+            )
+        }
+
+    }
+}
 
 @Composable
 fun ApiSetupHelper() {
@@ -237,6 +331,7 @@ fun ApiSetupHelper() {
                     start = offset,
                     end = offset
                 ).firstOrNull()?.let {
+                    logButtonClick("Learn More About API")
                     uriHandler.openUri(it.item)
                 }
             }

@@ -17,18 +17,21 @@ import com.codentmind.gemlens.domain.repository.MessageRepository
 import com.codentmind.gemlens.presentation.state.MessageUiState
 import com.codentmind.gemlens.utils.Constant.ROLE_MODEL
 import com.codentmind.gemlens.utils.Constant.ROLE_USER
+import com.codentmind.gemlens.utils.Constant.TAG
 import com.codentmind.gemlens.utils.clearCacheDir
 import com.codentmind.gemlens.utils.datastore
-import com.codentmind.gemlens.utils.getLocalImageUri
+import com.codentmind.gemlens.utils.getImageUriList
+import com.codentmind.gemlens.utils.recycleBitmap
 import com.codentmind.gemlens.utils.storeApiKey
 import com.google.ai.client.generativeai.Chat
 import com.google.ai.client.generativeai.type.Content
-import com.google.ai.client.generativeai.type.ImagePart
 import com.google.ai.client.generativeai.type.TextPart
 import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -61,14 +64,14 @@ class MessageViewModel(
     private var chat: Chat? = null
 
     /**
-     * Initializes the ViewModel by collecting all messages from the repository and updating the UI state.
+     * Initializes the ViewModel by Collecting all messages from the repository and updating the UI state.
      * This ensures that the UI is populated with existing messages from the local database upon initialization.
      */
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getAllMessages().collect {
+            repository.getAllMessages().onEach {
                 _uiState.value = MessageUiState(it)
-            }
+            }.first()
         }
     }
 
@@ -82,8 +85,15 @@ class MessageViewModel(
      *
      * @param context The application context.
      */
-    fun makeMultiTurnQuery(context: Context, prompt: String, mediaList: List<MediaModel>? = null) {
-        _uiState.value.messages.add(Message(text = prompt, mode = Mode.USER))
+    fun makeMultiTurnQuery(context: Context, prompt: String, mediaList: List<MediaModel>?) {
+        val imageUris = getImageUriList(mediaList)
+        _uiState.value.messages.add(
+            Message(
+                text = prompt,
+                imageUris = imageUris.map { it.imageUri },
+                mode = Mode.USER
+            )
+        )
         _uiState.value.messages.add(
             Message(
                 text = context.getString(R.string.generating),
@@ -107,7 +117,7 @@ class MessageViewModel(
                     text(prompt)
                 }
             }
-            makeGeneralQuery(_uiState.value.messages, inputContent)
+            makeGeneralQuery(_uiState.value.messages, inputContent, imageUris)
         }
     }
 
@@ -171,7 +181,8 @@ class MessageViewModel(
     @SuppressLint("LogNotTimber")
     private suspend fun makeGeneralQuery(
         result: MutableList<Message>,
-        feed: Any
+        feed: Any,
+        imageUris: List<MediaModel>
     ) {
         var output = ""
         try {
@@ -185,12 +196,12 @@ class MessageViewModel(
                 result[result.lastIndex] =
                     Message(text = output, mode = Mode.GEMINI, isGenerating = true)
             }
-            Log.v("GemLens", output)
+            Log.v(TAG, output)
             result[result.lastIndex] =
                 Message(text = output, mode = Mode.GEMINI, isGenerating = false)
 
             //Updating into DB
-            updateToDb(feed, output)
+            updateToDb(feed, output, imageUris)
         } catch (e: Exception) {
             result[result.lastIndex] = Message(
                 text = e.message.toString(),
@@ -240,23 +251,27 @@ class MessageViewModel(
      * @param feed The input content sent to the AI model.
      * @param output The text response received from the AI model.
      */
-    private fun updateToDb(feed: Any, output: String) {
+    private fun updateToDb(feed: Any, output: String, imageUris: List<MediaModel>) {
         viewModelScope.launch {
             var text = ""
-            val imageUris = mutableListOf<String>()
             if (feed is Content) {
                 feed.parts.filterIsInstance<TextPart>().forEach {
                     text += it.text
                 }
-                feed.parts.filterIsInstance<ImagePart>().forEach {
-                    imageUris.add(it.image.getLocalImageUri())
-                }
+//                feed.parts.filterIsInstance<ImagePart>().forEach {
+//                    imageUris.add(it.image.getLocalImageUri())
+//                }
             } else {
                 text = feed.toString()
             }
             //Updating into DB
-            repository.insertMessage(Message(text = text, imageUris = imageUris))
+            repository.insertMessage(
+                Message(
+                    text = text,
+                    imageUris = imageUris.map { it.imageUri })
+            )
             repository.insertMessage(Message(text = output, mode = Mode.GEMINI))
+            recycleBitmap(imageUris)
         }
     }
 

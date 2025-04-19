@@ -15,6 +15,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,11 +29,18 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.codentmind.gemlens.R
 import com.codentmind.gemlens.presentation.navigation.TopBar
+import com.codentmind.gemlens.utils.AnalyticsHelper.logButtonClick
+import com.codentmind.gemlens.utils.AnalyticsHelper.logScreenView
+import com.codentmind.gemlens.utils.Constant.Analytics.Companion.SCREEN_ABOUT
 
 @ExperimentalMaterial3Api
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AboutScreen(navController: NavHostController) {
+    LaunchedEffect(Unit) {
+        logScreenView(SCREEN_ABOUT)
+    }
+
     Scaffold(topBar = {
         TopBar(
             name = stringResource(id = R.string.about), navController = navController
@@ -122,14 +130,7 @@ fun Credits() {
                         start = offset,
                         end = offset
                     ).firstOrNull()?.let {
-                        uriHandler.openUri(it.item)
-                    }
-
-                    credits.getStringAnnotations(
-                        tag = "person2",
-                        start = offset,
-                        end = offset
-                    ).firstOrNull()?.let {
+                        logButtonClick("GitHub Profile")
                         uriHandler.openUri(it.item)
                     }
                 }
@@ -144,6 +145,7 @@ fun Credits() {
                         start = offset,
                         end = offset
                     ).firstOrNull()?.let {
+                        logButtonClick("GitHub Repository")
                         uriHandler.openUri(it.item)
                     }
                 }
