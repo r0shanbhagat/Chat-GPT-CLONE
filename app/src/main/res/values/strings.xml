@@ -3,7 +3,9 @@
     <string name="hide_password">Hide password</string>
     <string name="show_password">Show password</string>
     <string name="or">or</string>
+    <string name="message_placeholder">Ask a question</string>
     <string name="action_send">Send</string>
+    <string name="action_mic">Mic</string>
     <string name="multi_turn_mode">Conversation</string>
     <string name="image_mode">Image Chat</string>
     <string name="single_turn_mode">Single Text</string>
@@ -32,4 +34,6 @@
     <string name="save">Save</string>
     <string name="permission_denied_storage">Storage permission denied</string>
     <string name="share_image">Share image via</string>
+    <string name="error_msg_text">Hmm... something seems to have gone wrong.</string>
+    <string name="help_text">What i Can Help with?</string>
 </resources>

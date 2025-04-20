@@ -4,9 +4,11 @@ package com.codentmind.gemlens.presentation.viewmodel
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.codentmind.gemlens.GemLensApp
 import com.codentmind.gemlens.R
 import com.codentmind.gemlens.core.BaseViewModel
 import com.codentmind.gemlens.domain.model.MediaModel
@@ -135,6 +137,10 @@ class MessageViewModel(
             _uiState.value = MessageUiState()
             clearCacheDir()
         }
+    }
+
+    fun onRetry() {
+        Toast.makeText(GemLensApp.getInstance(), "Retrying...", Toast.LENGTH_SHORT).show()
     }
 
     /**
@@ -286,6 +292,10 @@ class MessageViewModel(
     fun makeHomeVisit() {
         _isHomeVisit.value = true
         resetValidationState()
+    }
+
+    fun stopGenerating() {
+
     }
 
     sealed class ValidationState {

@@ -2,11 +2,15 @@ package com.codentmind.gemlens.utils
 
 import android.app.Activity
 import android.content.Context
+import android.content.Context.VIBRATOR_SERVICE
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.speech.RecognizerIntent
 import android.text.TextUtils
 import android.util.Log
@@ -130,6 +134,11 @@ fun NavController.navigateWithArgs(
     }
 }
 
+/**
+ * Share text
+ *
+ * @param text
+ */
 fun Context.shareText(text: String) {
     val intent = Intent(Intent.ACTION_SEND)
     intent.type = "text/plain"
@@ -198,7 +207,10 @@ inline fun ComponentActivity.postDel1ay(
     block()
 }
 
-
+/**
+ * Hide system bars
+ *
+ */
 fun Activity.hideSystemBars() {
     WindowCompat.setDecorFitsSystemWindows(window, false)
     val controller = WindowCompat.getInsetsController(window, window.decorView)
@@ -218,6 +230,10 @@ fun Activity.hideSystemBars() {
     }
 }
 
+/**
+ * Show system bars
+ *
+ */
 fun Activity.showSystemBars() {
     WindowCompat.setDecorFitsSystemWindows(window, true)
     val controller = WindowCompat.getInsetsController(window, window.decorView)
@@ -236,7 +252,12 @@ fun Activity.showSystemBars() {
     }
 }
 
-
+/**
+ * Set status bar color
+ *
+ * @param window
+ * @param color
+ */
 fun setStatusBarColor(window: Window, color: Int) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) { // Android 15+
         window.decorView.setOnApplyWindowInsetsListener { view, insets ->
@@ -251,4 +272,31 @@ fun setStatusBarColor(window: Window, color: Int) {
         // For Android 14 and below
         window.statusBarColor = color
     }
+}
+
+/**
+ * Get the system vibrator
+ *
+ * @return Vibrator
+ */
+fun Context.vibrator(): Vibrator {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val vibratorManager =
+            getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        vibratorManager.defaultVibrator
+    } else {
+        @Suppress("DEPRECATION")
+        getSystemService(VIBRATOR_SERVICE) as Vibrator
+    }
+}
+
+/**
+ * Triggers a short vibration using the default amplitude.
+ *
+ * This function is an extension function for the Vibrator class.
+ */
+fun Context.vibrate() {
+    vibrator().vibrate(
+        VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE)
+    )
 }

@@ -50,6 +50,7 @@ import com.codentmind.gemlens.utils.AnalyticsHelper.logButtonClick
 import com.codentmind.gemlens.utils.AnalyticsHelper.logScreenView
 import com.codentmind.gemlens.utils.Constant.Analytics.Companion.SCREEN_CHAT
 import com.codentmind.gemlens.utils.ImageHelper
+import com.codentmind.gemlens.utils.vibrate
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -116,6 +117,7 @@ fun ChatScreen(viewModel: MessageViewModel, navController: NavHostController) {
             },
             confirmButton = {
                 Button(onClick = {
+                    context.vibrate()
                     logButtonClick("ClearChat History")
                     viewModel.clearContext()
                     openDialog = false

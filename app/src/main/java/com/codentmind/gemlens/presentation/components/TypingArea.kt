@@ -21,11 +21,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -39,9 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -57,6 +58,7 @@ import com.codentmind.gemlens.domain.model.MediaModel
 import com.codentmind.gemlens.presentation.viewmodel.MessageViewModel
 import com.codentmind.gemlens.utils.AnalyticsHelper.logButtonClick
 import com.codentmind.gemlens.utils.speakToAdd
+import com.codentmind.gemlens.utils.vibrate
 
 
 @Composable
@@ -70,6 +72,7 @@ fun TypingArea(
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
+
     var text by remember { mutableStateOf(TextFieldValue("")) }
     val isGenerating: Boolean? = chatUiState.messages.lastOrNull()?.isGenerating
 
@@ -84,6 +87,8 @@ fun TypingArea(
         )
         text = TextFieldValue("")
         mediaList?.clear()
+
+        context.vibrate()
     }
 
     val speakLauncher = rememberLauncherForActivityResult(
@@ -99,12 +104,7 @@ fun TypingArea(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                top = 10.dp,
-                bottom = 10.dp,
-                end = 10.dp,
-                start = 0.dp
-            )
+            .padding(12.dp)
             .background(colorScheme.background),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly
@@ -170,41 +170,41 @@ fun TypingArea(
             )
         }
 
-
-        IconButton(onClick = {
-            expanded = true
-        }) {
-            Icon(
-                modifier = Modifier.size(30.dp),
-                painter = painterResource(id = R.drawable.add_icon),
-                tint = colorScheme.primary,
-                contentDescription = "add"
-            )
-        }
-
         OutlinedTextField(
             value = text,
             onValueChange = { newText -> text = newText },
             placeholder = {
                 Text(
                     color = colorScheme.inversePrimary,
-                    text = "Ask a question"
+                    text = stringResource(R.string.message_placeholder)
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add",
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clickable {
+                            expanded = true
+                        },
+                    tint = colorScheme.primary
                 )
             },
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
                 .background(colorScheme.background),
-            shape = RoundedCornerShape(28),
+            shape = RoundedCornerShape(30),
             keyboardActions = KeyboardActions(
                 onDone = { keyboardController?.hide() }
             ),
             colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = colorScheme.primary,
+                focusedIndicatorColor = Color.LightGray,
                 unfocusedIndicatorColor = Color.LightGray,
                 focusedContainerColor = colorScheme.background,
                 unfocusedContainerColor = colorScheme.background,
-                cursorColor = colorScheme.primary
+                cursorColor = Color.DarkGray
             ),
             maxLines = 5,
             trailingIcon = {
@@ -213,46 +213,33 @@ fun TypingArea(
                     contentAlignment = Alignment.Center
                 ) {
                     if (isGenerating != true) {
-                        Icon(
-                            //    painter = painterResource(id = R.drawable.send_icon),
-                            if (text.text.isNotBlank()) {
-                                painterResource(R.drawable.send_icon)
-                            } else {
-                                painterResource(R.drawable.ic_voice)
-                            },
-                            contentDescription = stringResource(R.string.action_send),
-                            modifier = Modifier
-                                .size(30.dp)
-                                .clickable {
-                                    if (text.text.trim().isNotEmpty()) {
-                                        sendQuery(text.text)
-                                    } else {
+                        if (text.text.isBlank()) {
+                            Icon(
+                                imageVector = Icons.Default.Mic,
+                                contentDescription = stringResource(R.string.action_mic),
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .clickable {
                                         context.speakToAdd(speakLauncher)
-                                    }
-                                },
-                            tint = colorScheme.primary
-                        )
+                                    },
+                                tint = colorScheme.primary
+                            )
+                        } else {
+                            IconButton(Icons.AutoMirrored.Filled.Send) {
+                                sendQuery(text.text)
+                            }
+                        }
                     } else {
-                        val strokeWidth = 2.dp
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .drawBehind {
-                                    drawCircle(
-                                        Color.Black,
-                                        radius = size.width / 2 - strokeWidth.toPx() / 2,
-                                        style = Stroke(strokeWidth.toPx())
-                                    )
-                                }
-                                .size(30.dp),
-                            color = Color.LightGray,
-                            strokeWidth = strokeWidth
-                        )
+                        IconButton(Icons.Default.Stop) {
+                            viewModel.stopGenerating()
+                        }
+                        context.vibrate()
                     }
                 }
             },
             textStyle = TextStyle(
-                fontWeight = FontWeight.W500,
-                fontSize = 18.sp
+                fontWeight = FontWeight.W400,
+                fontSize = 17.sp
             )
         )
     }

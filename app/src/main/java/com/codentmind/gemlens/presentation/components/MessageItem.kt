@@ -37,24 +37,23 @@ import com.codentmind.gemlens.domain.model.Message
 import com.codentmind.gemlens.domain.model.Mode
 import com.codentmind.gemlens.presentation.screens.FullScreenImageBottomSheet
 import com.codentmind.gemlens.presentation.theme.BgColor
-import com.codentmind.gemlens.presentation.theme.Pink40
-import com.codentmind.gemlens.presentation.theme.PurpleGrey80
 import com.codentmind.gemlens.presentation.theme.TextColor
 
 @Composable
 fun ChatBubbleItem(
     chatMessage: Message,
+    onRetryClick: () -> Unit,
 ) {
     val isGEMINIMessage = chatMessage.mode == Mode.GEMINI
     val backgroundColor = when (chatMessage.mode) {
         Mode.GEMINI -> MaterialTheme.colorScheme.primaryContainer
         Mode.USER -> BgColor
-        Mode.ERROR -> PurpleGrey80
+        Mode.ERROR -> Color.Transparent
     }
     val textColor = when (chatMessage.mode) {
         Mode.GEMINI -> TextColor
-        Mode.ERROR -> Pink40
         Mode.USER -> Color.White
+        Mode.ERROR -> Color.Transparent
     }
 
     val bubbleShape = if (isGEMINIMessage) {
@@ -93,19 +92,23 @@ fun ChatBubbleItem(
                     .widthIn(0.dp, maxWidth * 0.9f)
             ) {
                 Column {
-                    SelectionContainer {
-                        Text(
-                            modifier = Modifier.padding(
-                                start = 14.dp,
-                                end = 14.dp,
-                                top = 7.dp,
-                                bottom = 7.dp
-                            ),
-                            fontWeight = FontWeight.W500,
-                            color = textColor,
-                            fontSize = 13.sp,
-                            text = formatCode(chatMessage.text)
-                        )
+                    if (chatMessage.mode == Mode.ERROR) {
+                        ErrorMessageUI(onRetryClick)
+                    } else {
+                        SelectionContainer {
+                            Text(
+                                modifier = Modifier.padding(
+                                    start = 14.dp,
+                                    end = 14.dp,
+                                    top = 7.dp,
+                                    bottom = 7.dp
+                                ),
+                                fontWeight = FontWeight.W500,
+                                color = textColor,
+                                fontSize = 13.sp,
+                                text = formatCode(chatMessage.text)
+                            )
+                        }
                     }
                 }
             }
