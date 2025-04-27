@@ -4,13 +4,14 @@ package com.codentmind.gemlens.presentation.viewmodel
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.codentmind.gemlens.GemLensApp
 import com.codentmind.gemlens.R
 import com.codentmind.gemlens.core.BaseViewModel
+import com.codentmind.gemlens.domain.model.AssistChipModel
+import com.codentmind.gemlens.domain.model.FLOW
 import com.codentmind.gemlens.domain.model.MediaModel
 import com.codentmind.gemlens.domain.model.Message
 import com.codentmind.gemlens.domain.model.Mode
@@ -20,22 +21,31 @@ import com.codentmind.gemlens.presentation.state.MessageUiState
 import com.codentmind.gemlens.utils.Constant.ROLE_MODEL
 import com.codentmind.gemlens.utils.Constant.ROLE_USER
 import com.codentmind.gemlens.utils.Constant.TAG
-import com.codentmind.gemlens.utils.clearCacheDir
+import com.codentmind.gemlens.utils.clearImageDir
 import com.codentmind.gemlens.utils.datastore
-import com.codentmind.gemlens.utils.getImageUriList
+import com.codentmind.gemlens.utils.getAiMediaList
+import com.codentmind.gemlens.utils.getBitmapFromFileName
+import com.codentmind.gemlens.utils.isValidString
 import com.codentmind.gemlens.utils.recycleBitmap
 import com.codentmind.gemlens.utils.storeApiKey
 import com.google.ai.client.generativeai.Chat
 import com.google.ai.client.generativeai.type.Content
 import com.google.ai.client.generativeai.type.TextPart
 import com.google.ai.client.generativeai.type.content
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * ViewModel for managing messages and interacting with the Gemini AI model and message repository.
@@ -45,7 +55,8 @@ import timber.log.Timber
  */
 class MessageViewModel(
     private val geminiAIRepo: GeminiAIRepo,
-    private val repository: MessageRepository
+    private val repository: MessageRepository,
+    private val dispatcherIO: CoroutineDispatcher
 ) : BaseViewModel() {
 
     // Mutable state flow to hold the current UI state, which includes a list of messages.
@@ -64,19 +75,21 @@ class MessageViewModel(
     private val model by lazy { geminiAIRepo.getGenerativeModel() }
 
     private var chat: Chat? = null
+    private val chatMessageJob = SupervisorJob()
+    private val chatMessageScope = CoroutineScope(dispatcherIO + chatMessageJob)
+    private var databaseJob: Job? = null
 
     /**
      * Initializes the ViewModel by Collecting all messages from the repository and updating the UI state.
      * This ensures that the UI is populated with existing messages from the local database upon initialization.
      */
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcherIO) {
             repository.getAllMessages().onEach {
                 _uiState.value = MessageUiState(it)
             }.first()
         }
     }
-
 
     /**
      * Initiates a multi-turn query to the Gemini AI model.
@@ -85,25 +98,36 @@ class MessageViewModel(
      * along with any provided media to the AI model. It updates the UI state to reflect
      * the ongoing generation and handles the response.
      *
-     * @param context The application context.
      */
-    fun makeMultiTurnQuery(context: Context, prompt: String, mediaList: List<MediaModel>?) {
-        val imageUris = getImageUriList(mediaList)
-        _uiState.value.messages.add(
-            Message(
-                text = prompt,
-                imageUris = imageUris.map { it.imageUri },
-                mode = Mode.USER
+    fun sendMessage(
+        prompt: String,
+        mediaList: MutableList<MediaModel>?,
+        flow: FLOW = FLOW.DEFAULT,
+    ) {
+        chatMessageScope.launch {
+            //Deleting Error if exists any
+            deleteErrorItem()
+            var aiMediaList = emptyList<MediaModel>()
+            if (flow == FLOW.DEFAULT) {
+                aiMediaList = mediaList.getAiMediaList()
+                mediaList?.clear()
+
+                _uiState.value.messages.add(
+                    Message(
+                        text = prompt,
+                        imageUris = aiMediaList.map { it.fileName },
+                        mode = Mode.USER
+                    )
+                )
+            }
+
+            _uiState.value.messages.add(
+                Message(
+                    text = GemLensApp.getInstance().getString(R.string.generating),
+                    mode = Mode.GEMINI,
+                    isGenerating = true
+                )
             )
-        )
-        _uiState.value.messages.add(
-            Message(
-                text = context.getString(R.string.generating),
-                mode = Mode.GEMINI,
-                isGenerating = true
-            )
-        )
-        viewModelScope.launch {
 
             if (chat == null) {
                 chat = getChat()
@@ -111,16 +135,146 @@ class MessageViewModel(
 
             // val msg = "Look at the image(s), and then answer the following question: $prompt"
             var inputContent: Any = prompt
-            if (mediaList?.isNotEmpty() == true) {
+            if (aiMediaList.isNotEmpty()) {
                 inputContent = content {
-                    mediaList.forEach {
-                        image(it.bitmap)
+                    aiMediaList.forEach { model ->
+                        model.bitmap?.let { image(it) }
                     }
                     text(prompt)
                 }
             }
-            makeGeneralQuery(_uiState.value.messages, inputContent, imageUris)
+            sendStreamQuery(_uiState.value.messages, inputContent, aiMediaList, flow)
         }
+    }
+
+    /**
+     * send Stream Query to the Gemini AI model and handles the response.
+     *
+     * This function sends either a text prompt or a content object (including text and images)
+     * to the AI model. It streams the response, updates the UI state with each chunk, and
+     * finally updates the local database with the full response.
+     */
+    @SuppressLint("LogNotTimber")
+    private suspend fun sendStreamQuery(
+        result: MutableList<Message>,
+        feed: Any,
+        aiMediaList: List<MediaModel>,
+        flow: FLOW = FLOW.DEFAULT
+    ) {
+        var output = ""
+        try {
+            val stream = when {
+                feed is String -> chat?.sendMessageStream("What’s trending today?")
+                else -> model.generateContentStream(feed as Content)
+            }
+            stream?.collect { chunk ->
+                output += chunk.text.toString()
+                output.trimStart()
+                result[result.lastIndex] =
+                    Message(text = output, mode = Mode.GEMINI, isGenerating = true)
+            }
+            Log.v(TAG, output)
+            result[result.lastIndex] = Message(text = output, mode = Mode.GEMINI)
+
+            //Updating into DB
+            updateToDB(feed, output, aiMediaList, flow)
+        } catch (ex: Exception) {
+            Timber.e(ex) //Print logs
+            val mode = if (output.isValidString()) Mode.GEMINI else Mode.ERROR
+
+            //User cancelled the request
+            if (ex is CancellationException) {
+                result[result.lastIndex] =
+                    Message(text = output, mode = mode)
+
+            } else {
+                //Updating into DB $FROM GEMINI
+                result[result.lastIndex] = Message(
+                    text = output,
+                    mode = mode,
+                )
+            }
+
+            //Updating into DB
+            updateToDB(feed, output, aiMediaList, flow)
+        }
+    }
+
+    /**
+     * Updates the local database with the new message exchange.
+     *
+     * This function extracts text and image URIs from the input feed and creates a new
+     * message entry in the database. It also adds a separate entry for the AI's response.
+     * This ensures that the entire conversation history is stored locally for persistence.
+     *
+     * @param feed The input content sent to the AI model.
+     * @param output The text response received from the AI model.
+     */
+    private fun updateToDB(
+        feed: Any,
+        output: String,
+        aiMediaList: List<MediaModel>,
+        flow: FLOW,
+    ) {
+        databaseJob = viewModelScope.launch(dispatcherIO) {
+            var text = ""
+            if (feed is Content) {
+                feed.parts.filterIsInstance<TextPart>().forEach {
+                    text += it.text
+                }
+//                feed.parts.filterIsInstance<ImagePart>().forEach {
+//                    imageUris.add(it.image.getLocalImageUri())
+//                }
+            } else {
+                text = feed.toString()
+            }
+
+            //Updating into DB $FROM USER
+            if (flow == FLOW.DEFAULT) {
+                repository.insertMessage(
+                    Message(
+                        text = text,
+                        imageUris = aiMediaList.map { it.fileName })
+                )
+            }
+
+            val mode = if (output.isValidString()) Mode.GEMINI else Mode.ERROR
+            repository.insertMessage(Message(text = output, mode = mode))
+            recycleBitmap(aiMediaList)
+        }
+    }
+
+    internal fun onRetryMessage() {
+        viewModelScope.launch {
+            val message = uiState.value.messages[uiState.value.messages.lastIndex - 1]
+            val mediaList: List<MediaModel> = message.imageUris.map {
+                val fileName = it
+                val bitmap = getBitmapFromFileName(fileName)
+                MediaModel(bitmap = bitmap, fileName = fileName)
+            }
+            sendMessage(message.text, mediaList.toMutableList(), FLOW.RETRY)
+        }
+    }
+
+
+    /**
+     * Deletes the last error message from the UI state and the local database.
+     *
+     * This function checks if there are any messages in the UI state. If the last message
+     * is an error message, it removes it from both the UI state and the local database.
+     * This is typically used to clean up error messages after they have been acknowledged.
+     */
+    private fun deleteErrorItem() {
+        if (uiState.value.messages.isNotEmpty()) {
+            val message = uiState.value.messages.last()
+            if (message.mode == Mode.ERROR) {
+                _uiState.value.messages.remove(message)
+                viewModelScope.launch(dispatcherIO) {
+                    repository.deleteMessage(message)
+                }
+            }
+        }
+
     }
 
     /**
@@ -130,17 +284,15 @@ class MessageViewModel(
      * from both the local database and the UI state. It also clears any cached data.
      */
     fun clearContext() {
-        Timber.d("ViewModel Loader")
+        databaseJob?.cancel()
+        chatMessageJob.cancelChildren()
         chat = getChat()
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteAllMessages()
+        viewModelScope.launch(dispatcherIO) {
             _uiState.value = MessageUiState()
-            clearCacheDir()
+            clearImageDir()
+            delay(100)
+            repository.deleteAllMessages()
         }
-    }
-
-    fun onRetry() {
-        Toast.makeText(GemLensApp.getInstance(), "Retrying...", Toast.LENGTH_SHORT).show()
     }
 
     /**
@@ -152,7 +304,7 @@ class MessageViewModel(
      *
      */
     fun validate(context: Context, apiKey: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcherIO) {
             _validationState.value = ValidationState.Checking
             try {
                 val model = geminiAIRepo.getGenerativeModel(apiKey = apiKey)
@@ -175,45 +327,6 @@ class MessageViewModel(
      */
     fun resetValidationState() {
         _validationState.value = ValidationState.Idle
-    }
-
-    /**
-     * Makes a general query to the Gemini AI model and handles the response.
-     *
-     * This function sends either a text prompt or a content object (including text and images)
-     * to the AI model. It streams the response, updates the UI state with each chunk, and
-     * finally updates the local database with the full response.
-     */
-    @SuppressLint("LogNotTimber")
-    private suspend fun makeGeneralQuery(
-        result: MutableList<Message>,
-        feed: Any,
-        imageUris: List<MediaModel>
-    ) {
-        var output = ""
-        try {
-            val stream = when {
-                feed is String -> chat?.sendMessageStream(feed)
-                else -> model.generateContentStream(feed as Content)
-            }
-            stream?.collect { chunk ->
-                output += chunk.text.toString()
-                output.trimStart()
-                result[result.lastIndex] =
-                    Message(text = output, mode = Mode.GEMINI, isGenerating = true)
-            }
-            Log.v(TAG, output)
-            result[result.lastIndex] =
-                Message(text = output, mode = Mode.GEMINI, isGenerating = false)
-
-            //Updating into DB
-            updateToDb(feed, output, imageUris)
-        } catch (e: Exception) {
-            result[result.lastIndex] = Message(
-                text = e.message.toString(),
-                mode = Mode.ERROR,
-            )
-        }
     }
 
 
@@ -247,39 +360,6 @@ class MessageViewModel(
         return history
     }
 
-    /**
-     * Updates the local database with the new message exchange.
-     *
-     * This function extracts text and image URIs from the input feed and creates a new
-     * message entry in the database. It also adds a separate entry for the AI's response.
-     * This ensures that the entire conversation history is stored locally for persistence.
-     *
-     * @param feed The input content sent to the AI model.
-     * @param output The text response received from the AI model.
-     */
-    private fun updateToDb(feed: Any, output: String, imageUris: List<MediaModel>) {
-        viewModelScope.launch {
-            var text = ""
-            if (feed is Content) {
-                feed.parts.filterIsInstance<TextPart>().forEach {
-                    text += it.text
-                }
-//                feed.parts.filterIsInstance<ImagePart>().forEach {
-//                    imageUris.add(it.image.getLocalImageUri())
-//                }
-            } else {
-                text = feed.toString()
-            }
-            //Updating into DB
-            repository.insertMessage(
-                Message(
-                    text = text,
-                    imageUris = imageUris.map { it.imageUri })
-            )
-            repository.insertMessage(Message(text = output, mode = Mode.GEMINI))
-            recycleBitmap(imageUris)
-        }
-    }
 
     /**
      * Marks the current interaction as a home visit.
@@ -294,9 +374,46 @@ class MessageViewModel(
         resetValidationState()
     }
 
-    fun stopGenerating() {
 
+    /**
+     * Stops the content generation process by canceling any ongoing coroutines.
+     *
+     * This function is typically called when the user navigates away from the chat screen
+     * or when the app is closed. It ensures that any ongoing content generation tasks are
+     * properly terminated to avoid memory leaks or unnecessary processing.
+     *
+     */
+    fun stopContentGeneration() {
+        chatMessageJob.cancelChildren()
     }
+
+
+    /**
+     * Updates the quick prompt query in the UI state.
+     *
+     * This function sets the quick prompt query text in the UI state, typically used
+     * to update the UI with a new prompt or suggestion for the user.
+     *
+     * @param model The AssistChipModel containing the query text.
+     */
+    fun quickPromptQuery(model: AssistChipModel) {
+        _uiState.value.quickPromptQuery = model.queryText
+    }
+
+
+    /**
+     * Clears the chat message scope and cancels any ongoing coroutines.
+     *
+     * This function is typically called when the ViewModel is no longer needed or
+     * when the user navigates away from the chat screen. It ensures that any ongoing
+     * tasks are properly terminated to avoid memory leaks or unnecessary processing.
+     *
+     */
+    override fun onCleared() {
+        super.onCleared()
+        chatMessageScope.cancel()
+    }
+
 
     sealed class ValidationState {
         data object Idle : ValidationState()

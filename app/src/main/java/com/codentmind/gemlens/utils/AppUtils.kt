@@ -1,5 +1,6 @@
 package com.codentmind.gemlens.utils
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Context.VIBRATOR_SERVICE
@@ -34,6 +35,7 @@ import androidx.navigation.Navigator
 import com.codentmind.gemlens.GemLensApp
 import com.codentmind.gemlens.R
 import timber.log.Timber
+import java.io.IOException
 import java.util.Locale
 
 /**
@@ -43,7 +45,6 @@ import java.util.Locale
 
 /**
  * Is network connected check and return the n/w availability of user's device
- *
  * @param context
  * @return boolean true isNetworkConnected else false
  */
@@ -51,18 +52,14 @@ fun isNetworkConnected(): Boolean {
     val connectivityManager =
         GemLensApp.getInstance()
             .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    val network = connectivityManager.activeNetwork
-    val capabilities = connectivityManager.getNetworkCapabilities(network)
-    return capabilities != null && (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(
-        NetworkCapabilities.TRANSPORT_CELLULAR
-    ) || capabilities.hasTransport(
-        NetworkCapabilities.TRANSPORT_VPN
-    ))
+    val network = connectivityManager.activeNetwork ?: return false
+    val networkCapabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+    return networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 }
+
 
 /**
  * Show log
- *
  * @param tagName
  * @param message
  */
@@ -82,7 +79,6 @@ fun showLog(tagName: String, message: String) {
 
 /**
  * Log exception
- *
  * @param t
  */
 fun logException(t: Throwable?) {
@@ -90,15 +86,14 @@ fun logException(t: Throwable?) {
 }
 
 /**
- * Is list not empty
- *
+ * Checks if a list is not empty.
  * @param list
  */
 fun isListNotEmpty(list: List<Any>?) = !(list?.isEmpty() ?: true)
 
 /**
  * Is valid string
- *
+ * Checks if string is valid.
  * @param value
  */
 fun String?.isValidString() = !TextUtils.isEmpty(this)
@@ -106,13 +101,13 @@ fun String?.isValidString() = !TextUtils.isEmpty(this)
 
 /**
  * Navigate with Arguments
- *
  * @receiver [NavController]
  * @param route Route
  * @param args Args
  * @param navOptions Nav options
  * @param navigatorExtras Navigator extras
  */
+@SuppressLint("RestrictedApi")
 fun NavController.navigateWithArgs(
     route: String,
     args: Bundle,
@@ -134,9 +129,9 @@ fun NavController.navigateWithArgs(
     }
 }
 
+
 /**
- * Share text
- *
+shares text content with other apps.
  * @param text
  */
 fun Context.shareText(text: String) {
@@ -152,6 +147,10 @@ fun Context.shareText(text: String) {
     )
 }
 
+/***
+ * The input string is split into words, and each word is capitalized.
+ * @return The camel case version of the input string.
+ */
 fun String.toCamelCase(): String {
     val space = " "
     val splitedStr = this.split(space)
@@ -168,8 +167,7 @@ fun String.toCamelCase(): String {
 }
 
 /**
- * Speak to add
- *
+ * Launches speech recognition to add text.
  * @param speakLauncher
  */
 fun Context.speakToAdd(speakLauncher: ActivityResultLauncher<Intent>?) {
@@ -190,8 +188,7 @@ fun Context.speakToAdd(speakLauncher: ActivityResultLauncher<Intent>?) {
 }
 
 /**
- * Register activity for result
- *
+ * Registers an activity for result using the StartActivityForResult contract.
  * @param block
  */
 inline fun ComponentActivity.registerActivityForResult(
@@ -200,6 +197,12 @@ inline fun ComponentActivity.registerActivityForResult(
     block(intent)
 }
 
+/**
+ * This function uses the lifecycleScope to ensure that the coroutine is cancelled when the
+ * associated lifecycle is destroyed.
+ *
+ * @param delayInMs The delay in milliseconds.
+ */
 inline fun ComponentActivity.postDel1ay(
     delayInMs: Long,
     crossinline block: () -> Unit,
@@ -208,8 +211,7 @@ inline fun ComponentActivity.postDel1ay(
 }
 
 /**
- * Hide system bars
- *
+ * Hides the system bars (status bar, navigation bar).
  */
 fun Activity.hideSystemBars() {
     WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -231,15 +233,14 @@ fun Activity.hideSystemBars() {
 }
 
 /**
- * Show system bars
- *
+ * Shows the system bars (status bar, navigation bar). *
  */
 fun Activity.showSystemBars() {
     WindowCompat.setDecorFitsSystemWindows(window, true)
     val controller = WindowCompat.getInsetsController(window, window.decorView)
     controller.show(WindowInsetsCompat.Type.systemBars())
     window?.let {
-        //WindowCompat.setDecorFitsWindows(it, true)
+//WindowCompat.setDecorFitsWindows(it, true)
         WindowCompat.setDecorFitsSystemWindows(
             it,
             true
@@ -253,8 +254,7 @@ fun Activity.showSystemBars() {
 }
 
 /**
- * Set status bar color
- *
+Sets the status bar color.
  * @param window
  * @param color
  */
@@ -264,18 +264,18 @@ fun setStatusBarColor(window: Window, color: Int) {
             val statusBarInsets = insets.getInsets(WindowInsets.Type.statusBars())
             view.setBackgroundColor(color)
 
-            // Adjust padding to avoid overlap
+// Adjust padding to avoid overlap
             view.setPadding(0, statusBarInsets.top, 0, 0)
             insets
         }
     } else {
-        // For Android 14 and below
+// For Android 14 and below
         window.statusBarColor = color
     }
 }
 
 /**
- * Get the system vibrator
+ * Gets the system vibrator service.
  *
  * @return Vibrator
  */
@@ -300,3 +300,41 @@ fun Context.vibrate() {
         VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE)
     )
 }
+
+/**
+ * Reads a JSON file from the assets directory.
+ *
+ * This function reads a JSON file located in the assets directory and returns its contents as a
+ * String.
+ *
+ * @param fileName The name of the file to read.
+ */
+fun readJsonFromAssets(context: Context, fileName: String): String? {
+    return try {
+        return context.assets.open(fileName).bufferedReader().use { it.readText() }
+    } catch (ex: IOException) {
+        Timber.e(ex.message)
+        null
+    }
+}
+
+
+/***
+ * This function takes a drawable name as a string and returns its corresponding resource ID.
+ *
+ * @param name The name of the drawable resource.
+ * @return The drawable resource ID, or 0 if the resource is not found.
+ */
+@SuppressLint("DiscouragedApi")
+fun Context.getDrawableResId(name: String): Int {
+    if (!name.isValidString()) return 0
+
+    return try {
+        this.resources.getIdentifier(name, "drawable", this.packageName)
+    } catch (rne: Exception) {
+        Timber.e(rne.message)
+        0
+    }
+}
+
+

@@ -1,5 +1,6 @@
 package com.codentmind.gemlens.domain.model
 
+import com.codentmind.gemlens.data.dataSource.db.MessageEntity
 import java.util.Date
 import java.util.UUID
 
@@ -7,6 +8,11 @@ enum class Mode {
     USER,
     GEMINI,
     ERROR
+}
+
+enum class FLOW {
+    DEFAULT,
+    RETRY,
 }
 
 data class Message(
@@ -17,5 +23,6 @@ data class Message(
     var isGenerating: Boolean = false,
     val imageUris: List<String> = emptyList(),
     val time: Date = Date(),
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val msgEntity: MessageEntity? = null
 )

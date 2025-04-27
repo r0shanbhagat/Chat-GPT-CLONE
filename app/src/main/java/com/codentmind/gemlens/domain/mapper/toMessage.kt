@@ -1,7 +1,7 @@
 package com.codentmind.gemlens.domain.mapper
 
-import com.codentmind.gemlens.domain.model.Message
 import com.codentmind.gemlens.data.dataSource.db.MessageEntity
+import com.codentmind.gemlens.domain.model.Message
 import java.util.Date
 
 fun MessageEntity.toMessage(): Message {
@@ -13,7 +13,8 @@ fun MessageEntity.toMessage(): Message {
         cId = cId,
         time = time,
         imageUris = imageUris,
-        isFavorite = isFavorite
+        isFavorite = isFavorite,
+        msgEntity = this
     )
 }
 

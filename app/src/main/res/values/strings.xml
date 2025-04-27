@@ -28,7 +28,6 @@
     <string name="delete_chat">Clear chat history</string>
     <string name="confirm_delete">Do you want to delete all chat?</string>
     <string name="no_message">No messages yet. Start Chatting!</string>
-
     <string name="full_screen_image">Full screen image</string>
     <string name="dismiss">Dismiss</string>
     <string name="save">Save</string>
@@ -36,4 +35,8 @@
     <string name="share_image">Share image via</string>
     <string name="error_msg_text">Hmm... something seems to have gone wrong.</string>
     <string name="help_text">What i Can Help with?</string>
+    <string name="camera_permission_title">Camera Permission Needed</string>
+    <string name="camera_permission_description">Please enable camera permission manually from settings to use this feature.</string>
+    <string name="no_internet_connection">No Internet Connection</string>
+    <string name="please_check_your_wi_fi_or_mobile_data_settings">Please check your Wi-Fi or Mobile Data settings.</string>
 </resources>

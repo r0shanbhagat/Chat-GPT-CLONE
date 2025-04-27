@@ -3,6 +3,7 @@ package com.codentmind.gemlens.data.dataSource.db
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
+import com.codentmind.gemlens.domain.model.Mode
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -16,6 +17,9 @@ interface MessageDao {
     @Query("DELETE FROM message")
     suspend fun deleteAllMessages()
 
+    @Query("DELETE FROM message WHERE mode = :mode")
+    suspend fun delete(mode: Mode)
+
     @Query("SELECT * FROM message WHERE id=:id")
-    fun getAllMessage(id: String): Flow<List<MessageEntity>>
+    suspend fun getMessageById(id: Int): MessageEntity
 }

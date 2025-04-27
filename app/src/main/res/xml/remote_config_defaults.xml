@@ -2,6 +2,27 @@
 <defaultsMap>
     <entry>
         <key>apikey</key>
-        <value>""</value>
+        <value>KEY NOT AVAILABLE</value>
+    </entry>
+    <entry>
+        <key>QuickPrompts</key>
+        <value>[{"id":1,"drawableName":"qp_trend_up","label":"Trending now","queryText":"What’s
+            trending today?"},{"id":2,"drawableName":"qp_help_me_plan","label":"Help me
+            plan","queryText":"What are 5 things you can do to help with
+            planning?"},{"id":3,"drawableName":"qp_research_on_topic","label":"Research a
+            topic","queryText":"Help me explore some different ways to research a
+            topic."},{"id":4,"drawableName":"qp_studytips","label":"Give me study
+            tips","queryText":"I want to use AI for studying. What are a couple of ways you can
+            help?"},{"id":5,"drawableName":"qp_inspireme","label":"Inspire me","queryText":"Tell me
+            something interesting that will inspire
+            me."},{"id":6,"drawableName":"qp_email","label":"Thank you email","queryText":"write a
+            thank you letter to my manager."},{"id":7,"drawableName":"qp_movies","label":"Suggest a
+            movie","queryText":"Suggest me some good movies to watch on this
+            weekend."},{"id":8,"drawableName":"qp_poem","label":"Write a poem","queryText":"Write a
+            short poem about the moon."},{"id":9,"drawableName":"qp_jokes","label":"Tell me a
+            joke","queryText":"Tell me a joke that's actually
+            funny."},{"id":10,"drawableName":"qp_brainstorm","label":"Brainstorm","queryText":"Brainstorm
+            ideas for my next vacation."}]
+        </value>
     </entry>
 </defaultsMap>

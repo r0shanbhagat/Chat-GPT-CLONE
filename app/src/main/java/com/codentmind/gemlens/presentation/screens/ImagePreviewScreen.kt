@@ -22,7 +22,7 @@ import com.codentmind.gemlens.presentation.components.ZoomableAsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FullScreenImageBottomSheet(
+fun ImagePreviewScreen(
     imageUrl: String,
     onDismiss: () -> Unit,
     onSave: () -> Unit,

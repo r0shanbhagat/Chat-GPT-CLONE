@@ -2,7 +2,7 @@ package com.codentmind.gemlens.presentation.navigation
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,7 +34,7 @@ fun TopBar(name: String, navController: NavHostController, showNavigationIcon: B
                 IconButton(
                     onClick = { navController.navigateUp() }) {
                     Icon(
-                        Icons.Default.ArrowBack,
+                        Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
                         modifier = Modifier.size(26.dp),
                         tint = MaterialTheme.colorScheme.primary

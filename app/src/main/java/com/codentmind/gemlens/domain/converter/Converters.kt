@@ -2,8 +2,8 @@ package com.codentmind.gemlens.domain.converter
 
 import androidx.room.TypeConverter
 import com.codentmind.gemlens.data.dataSource.db.MessageEntity
-import com.codentmind.gemlens.utils.NetworkUtil.Companion.decodeFromString
-import com.codentmind.gemlens.utils.NetworkUtil.Companion.encodeToString
+import com.codentmind.gemlens.utils.NetworkUtil.Companion.jsonToModel
+import com.codentmind.gemlens.utils.NetworkUtil.Companion.modelToJson
 import java.util.Date
 
 class Converters {
@@ -23,12 +23,12 @@ class ChatMessageConverters {
 
     @TypeConverter
     fun stringToChatMessageList(data: String): List<MessageEntity> {
-        return decodeFromString<List<MessageEntity>>(data)
+        return jsonToModel<List<MessageEntity>>(data)
     }
 
     @TypeConverter
     fun chatMessageListToString(someObjects: List<MessageEntity>): String {
-        return encodeToString(someObjects)
+        return modelToJson(someObjects)
     }
 }
 
@@ -36,11 +36,11 @@ class ChatMessageConverters {
 class ListConverters {
     @TypeConverter
     fun stringToStringList(data: String): List<String> {
-        return decodeFromString<List<String>>(data)
+        return jsonToModel<List<String>>(data)
     }
 
     @TypeConverter
     fun stringListToString(someObjects: List<String>): String {
-        return encodeToString(someObjects)
+        return modelToJson(someObjects)
     }
 }

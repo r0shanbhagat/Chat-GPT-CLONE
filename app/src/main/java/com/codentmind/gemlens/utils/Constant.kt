@@ -6,7 +6,10 @@ object Constant {
     const val ROLE_USER = "user"
     const val ROLE_MODEL = "model"
     const val CONFIG_API_KEY = "apikey"
+    const val CONFIG_QUICK_PROMPTS = "QuickPrompts"
     const val TAG = "GemLens"
+    const val QUICK_PROMPT_FILE = "QuickPrompts.json"
+    const val QUICK_PROMPT_MORE = 100
 
     class Analytics {
         companion object {

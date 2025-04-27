@@ -22,11 +22,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.codentmind.gemlens.domain.model.MediaModel
 import com.codentmind.gemlens.presentation.theme.DecentRed
 
@@ -49,7 +49,7 @@ fun SelectedImageArea(mediaList: SnapshotStateList<MediaModel>) {
             ) {
                 Card {
                     Image(
-                        bitmap = mediaModel.bitmap.asImageBitmap(),
+                        painter = rememberAsyncImagePainter(mediaModel.imageUri),
                         contentDescription = "image",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier

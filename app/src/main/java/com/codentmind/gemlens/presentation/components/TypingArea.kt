@@ -34,10 +34,12 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -57,6 +59,7 @@ import com.codentmind.gemlens.R
 import com.codentmind.gemlens.domain.model.MediaModel
 import com.codentmind.gemlens.presentation.viewmodel.MessageViewModel
 import com.codentmind.gemlens.utils.AnalyticsHelper.logButtonClick
+import com.codentmind.gemlens.utils.isValidString
 import com.codentmind.gemlens.utils.speakToAdd
 import com.codentmind.gemlens.utils.vibrate
 
@@ -72,6 +75,7 @@ fun TypingArea(
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
+    val scope = rememberCoroutineScope()
 
     var text by remember { mutableStateOf(TextFieldValue("")) }
     val isGenerating: Boolean? = chatUiState.messages.lastOrNull()?.isGenerating
@@ -80,14 +84,11 @@ fun TypingArea(
         keyboardController?.hide()
         focusManager.clearFocus()
         logButtonClick("SendQuery")
-        viewModel.makeMultiTurnQuery(
-            context,
+        viewModel.sendMessage(
             userMessage.trim(),
             mediaList
         )
         text = TextFieldValue("")
-        mediaList?.clear()
-
         context.vibrate()
     }
 
@@ -99,6 +100,15 @@ fun TypingArea(
                 result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.get(0) ?: ""
             sendQuery(userMessage)
         }
+    }
+
+    if (chatUiState.quickPromptQuery.isValidString()) {
+        LaunchedEffect(Unit) {
+            mediaList?.clear()
+            sendQuery(chatUiState.quickPromptQuery)
+            chatUiState.quickPromptQuery = ""
+        }
+
     }
 
     Row(
@@ -231,7 +241,7 @@ fun TypingArea(
                         }
                     } else {
                         IconButton(Icons.Default.Stop) {
-                            viewModel.stopGenerating()
+                            viewModel.stopContentGeneration()
                         }
                         context.vibrate()
                     }
@@ -242,6 +252,16 @@ fun TypingArea(
                 fontSize = 17.sp
             )
         )
+    }
+
+    if (chatUiState.isClearData) {
+        context.vibrate()
+        viewModel.clearContext()
+        mediaList?.clear()
+        keyboardController?.hide()
+        focusManager.clearFocus()
+        logButtonClick("Clear Message History")
+        text = TextFieldValue("")
     }
 
 }

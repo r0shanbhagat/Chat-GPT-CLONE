@@ -64,6 +64,7 @@ import com.codentmind.gemlens.presentation.viewmodel.MessageViewModel
 import com.codentmind.gemlens.utils.AnalyticsHelper.logButtonClick
 import com.codentmind.gemlens.utils.AnalyticsHelper.logScreenView
 import com.codentmind.gemlens.utils.Constant.Analytics.Companion.SCREEN_API
+import com.codentmind.gemlens.utils.Constant.CONFIG_API_KEY
 import com.codentmind.gemlens.utils.datastore
 import com.codentmind.gemlens.utils.getApiKey
 import com.codentmind.gemlens.utils.isValidString
@@ -252,7 +253,7 @@ fun TempApiKeyGenerator(onComplete: (String) -> Unit) {
                 ).firstOrNull()?.let {
                     isLoading.value = true
                     logButtonClick("Generate Temp Key")
-                    remoteConfig.fetchConfigData(context!!) {
+                    remoteConfig.fetchConfigData(context, CONFIG_API_KEY) {
                         isLoading.value = false
                         annotatedString.value = linkedString
                         onComplete(it)

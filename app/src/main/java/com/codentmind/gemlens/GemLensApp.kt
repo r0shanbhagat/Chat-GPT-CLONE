@@ -28,6 +28,7 @@ class GemLensApp : Application(), ImageLoaderFactory {
         INSTANCE = this
         AnalyticsHelper.init(this)
         initKoin()
+
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }

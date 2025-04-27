@@ -20,8 +20,9 @@ class MessageRepositoryImpl(
 ) : MessageRepository {
 
     private val dao = db.messageDao
-    override suspend fun getMessageById(id: String): Flow<List<Message>> {
-        return dao.getAllMessage(id).map { it.map { msg -> msg.toMessage() } }
+
+    override suspend fun getMessageById(id: Int): Message {
+        return dao.getMessageById(id).toMessage()
     }
 
     override fun getAllMessages(): Flow<List<Message>> {
@@ -34,5 +35,9 @@ class MessageRepositoryImpl(
 
     override suspend fun deleteAllMessages() {
         dao.deleteAllMessages()
+    }
+
+    override suspend fun deleteMessage(message: Message) {
+        dao.delete(message.mode)
     }
 }

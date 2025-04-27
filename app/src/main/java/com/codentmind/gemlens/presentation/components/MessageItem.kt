@@ -1,11 +1,11 @@
 package com.codentmind.gemlens.presentation.components
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
@@ -35,9 +35,10 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.codentmind.gemlens.domain.model.Message
 import com.codentmind.gemlens.domain.model.Mode
-import com.codentmind.gemlens.presentation.screens.FullScreenImageBottomSheet
+import com.codentmind.gemlens.presentation.screens.ImagePreviewScreen
 import com.codentmind.gemlens.presentation.theme.BgColor
 import com.codentmind.gemlens.presentation.theme.TextColor
+import com.codentmind.gemlens.utils.getAbsolutePath
 
 @Composable
 fun ChatBubbleItem(
@@ -73,11 +74,11 @@ fun ChatBubbleItem(
             .padding(5.dp),
         horizontalAlignment = horizontalAlignment,
     ) {
-        LazyRow {
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
             items(chatMessage.imageUris) { imageUri ->
-                Box {
-                    RoundedCornerAsyncImage(imageUri)
-                }
+                RoundedCornerAsyncImage(imageUri.getAbsolutePath())
             }
         }
 
@@ -165,7 +166,7 @@ fun formatCode(text: String): AnnotatedString {
 fun RoundedCornerAsyncImage(imageUrl: String) {
     val showDialog = remember { mutableStateOf(false) }
     if (showDialog.value) {
-        FullScreenImageBottomSheet(imageUrl, {
+        ImagePreviewScreen(imageUrl, {
             showDialog.value = false
         }, {}, {})
 
@@ -174,8 +175,10 @@ fun RoundedCornerAsyncImage(imageUrl: String) {
         model = imageUrl,
         contentScale = ContentScale.Fit,
         modifier = Modifier
-            .defaultMinSize(200.dp, 260.dp)
-            .clip(RoundedCornerShape(16.dp))
+            //  .defaultMinSize(200.dp, 260.dp)
+            .height(141.dp)
+            .widthIn(60.dp)
+            .clip(RoundedCornerShape(10.dp))
             .clickable(
                 onClick = {
                     showDialog.value = true

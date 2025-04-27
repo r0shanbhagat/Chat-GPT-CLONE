@@ -11,7 +11,7 @@ interface MessageRepository {
      * @param id The unique identifier of the message to retrieve.
      * @return A Flow emitting a list of MessageEntity objects matching the ID.
      */
-    suspend fun getMessageById(id: String): Flow<List<Message>>
+    suspend fun getMessageById(id: Int): Message
 
     /**
      * Retrieves all messages from the database.
@@ -33,5 +33,12 @@ interface MessageRepository {
      * This operation removes all entries from the messages table.
      */
     suspend fun deleteAllMessages()
+
+    /**
+     * Deletes Specific messages from the database.
+     *
+     * This operation removes single entry from the messages table.
+     */
+    suspend fun deleteMessage(message: Message)
 
 }

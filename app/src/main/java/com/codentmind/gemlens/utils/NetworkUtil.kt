@@ -38,24 +38,17 @@ class NetworkUtil private constructor() {
         @Volatile
         private var instance: NetworkUtil? = null
 
-        /**
-         * Get NetworkUtil Instance
-         */
         @JvmStatic
         fun getInstance() = instance ?: synchronized(this) {
             instance ?: NetworkUtil().also { instance = it }
         }
 
-        /**
-         * Json for deserialization from string to given object.
-         */
-        inline fun <reified T> decodeFromString(jsonInString: String): T =
+
+        inline fun <reified T> jsonToModel(jsonInString: String): T =
             getInstance().jsonDecoder.decodeFromString(jsonInString)
 
-        /**
-         * Json for serialization from given object to String.
-         */
-        inline fun <reified T> encodeToString(obj: T): String =
+
+        inline fun <reified T> modelToJson(obj: T): String =
             getInstance().jsonEncoder.encodeToString(Json.serializersModule.serializer(), obj)
     }
 
