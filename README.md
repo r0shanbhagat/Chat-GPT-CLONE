@@ -8,7 +8,7 @@
 An advanced Android app built with Kotlin, Ktor, Coil, Room, Jetpack Compose, and powered by Generative AI.
 Seamlessly combining modern Android development with cutting-edge AI capabilities. </br>
 
-[![Download APK](https://img.shields.io/badge/Download-APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/r0shanbhagat/Gemini-AI-Android/releases/download/v1.0.0/app-production-debug.apk)
+[![Download APK](https://img.shields.io/badge/Download-APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/r0shanbhagat/Chat-GPT-CLONE/releases/download/v1.0.0/GemLens.AI.apk)
 > *Note: You might need to allow installs from unknown sources on your Android device.* </br>
 
 
