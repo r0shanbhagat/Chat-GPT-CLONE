@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "GemLens AI" //[Geml + Intelligence]
+rootProject.name = "GemLens AI" //Geml + Intelligence
 include(":app")
