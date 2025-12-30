@@ -2,36 +2,35 @@
 [versions]
 appId = "com.codentmind.gemlens"
 minSdk = "26"
-targetSdk = "35"
-compileSdk = "35"
+targetSdk = "36"
+compileSdk = "36"
 
-agp = "8.10.1"
-kotlin = "2.1.20"
-coreKtx = "1.16.0"
-ksp = "2.1.20-2.0.0"
-koin = "4.0.2"
-lifecycleViewmodelKtx = "2.8.7"
-composeBom = "2025.04.00"
-junit = "1.2.1"
-coilCompose = "2.5.0"
-activity-compose = "1.10.1"
-navigation-compose = "2.8.9"
+agp = "8.13.2"
+kotlin = "2.3.0"
+coreKtx = "1.17.0"
+ksp = "2.2.20-2.0.3"
+koin = "4.1.1"
+lifecycleViewmodelKtx = "2.10.0"
+composeBom = "2025.12.01"
+junit = "1.3.0"
+coilCompose = "2.7.0"
+activity-compose = "1.12.2"
+navigation-compose = "2.9.6"
 ktor = "2.3.13"
-datastorePreferences = "1.1.4"
+datastorePreferences = "1.2.0"
 generativeai = "0.9.0"
-material = "1.7.8"
-room = "2.7.0"
+materialExtended = "1.7.8"
+room = "2.8.4"
 timber = "5.0.1"
-gms = "4.4.2"
-firebaseBom = "33.12.0"
+gms = "4.4.4"
+firebaseBom = "34.7.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
-androidx-material = { module = "androidx.compose.material:material", version.ref = "material" }
-androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "material" }
+androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialExtended" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
@@ -44,7 +43,6 @@ coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coilCompose" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version = "1.10.1" }
 
 ktor-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktor-android = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor" }

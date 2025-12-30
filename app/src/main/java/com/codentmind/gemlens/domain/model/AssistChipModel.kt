@@ -14,6 +14,6 @@ data class AssistChipModel(
     val label: String,
     @SerialName("queryText")
     val queryText: String,
-    @DrawableRes
+    @field:DrawableRes
     var drawableId: Int = 0
 )

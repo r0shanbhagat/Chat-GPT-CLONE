@@ -1,11 +1,10 @@
 package com.codentmind.gemlens.data.dataSource.remote
 
-import android.app.Activity
 import com.codentmind.gemlens.R
 import com.codentmind.gemlens.utils.AnalyticsHelper.logEvents
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
-import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
+import com.google.firebase.remoteconfig.remoteConfigSettings
 
 /**
  * @Details :FirebaseRemoteConfig
@@ -39,15 +38,13 @@ class RemoteConfigHelper {
      * @param activity The activity used for adding completion listeners.
      * @param onComplete Callback invoked with the API key string upon completion.
      */
-    fun fetchConfigData(activity: Activity?, key: String, onComplete: (String) -> Unit) {
-        activity?.let {
-            remoteConfig.fetchAndActivate()
-                .addOnCompleteListener(activity) { task ->
-                    if (task.isSuccessful) {
-                        logEvents("RemoteConfig", "Fetch successful")
-                    }
-                    onComplete.invoke(remoteConfig.getString(key))
+    fun fetchConfigData(key: String, onComplete: (String) -> Unit) {
+        remoteConfig.fetchAndActivate()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    logEvents("RemoteConfig", "Fetch successful")
                 }
-        }
+                onComplete.invoke(remoteConfig.getString(key))
+            }
     }
 }

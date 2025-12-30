@@ -61,7 +61,7 @@ fun ChatScreenIntro(viewModel: MessageViewModel) {
 
     LaunchedEffect(Unit) {
         if (sessionData.quickPromptList.isEmpty()) {
-            remoteConfig.fetchConfigData(activity, CONFIG_QUICK_PROMPTS) {
+            remoteConfig.fetchConfigData(CONFIG_QUICK_PROMPTS) {
                 sessionData.setQuickPromptsList(it)
                 state = UiState.Success(sessionData.quickPromptList)
             }

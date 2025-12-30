@@ -253,7 +253,7 @@ fun TempApiKeyGenerator(onComplete: (String) -> Unit) {
                 ).firstOrNull()?.let {
                     isLoading.value = true
                     logButtonClick("Generate Temp Key")
-                    remoteConfig.fetchConfigData(context, CONFIG_API_KEY) {
+                    remoteConfig.fetchConfigData(CONFIG_API_KEY) {
                         isLoading.value = false
                         annotatedString.value = linkedString
                         onComplete(it)

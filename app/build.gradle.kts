@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -47,11 +48,13 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_19
-        targetCompatibility = JavaVersion.VERSION_19
+        sourceCompatibility = JavaVersion.VERSION_24
+        targetCompatibility = JavaVersion.VERSION_24
     }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_19.toString()
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.fromTarget(JavaVersion.VERSION_24.toString()))
+        }
     }
     buildFeatures {
         compose = true
