@@ -57,7 +57,7 @@ page
 - Download and Place [google-Service.json](https://console.firebase.google.com/u/0/) file inside project app.
 
 # Docs
-https://android-developers.googleblog.com/2023/12/leverage-generative-ai-in-your-android-apps.html
+https://firebase.google.com/docs/ai-logic/get-started
 
 # Contribution
 You can contribute this project. Just Solve issue or update code and raise PR. I'll do code review and merge your changes into main branch. See Commit message guidelines https://initialcommit.com/blog/git-commit-messages-best-practices
