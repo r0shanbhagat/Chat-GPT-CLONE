@@ -110,16 +110,15 @@ dependencies {
     implementation(libs.ktor.okhttp)
 
     /**
-     ******************************* AI **************************************************
-     **/
-    implementation(libs.generativeai)
-
-    /**
      ******************************* FIREBASE  **************************************************
      **/
     implementation(platform(libs.platform.firebase))
     implementation(libs.firebase.remote.config)
     implementation(libs.firebase.analytic)
+    /**
+     ******************************* AI **************************************************
+     **/
+    implementation(libs.firebase.ai)
 
     /**
      ******************************* DATABASE/DATA-STORE **************************************************
@@ -128,6 +127,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences.core)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.generativeai)
     ksp(libs.room.compiler)
 
     /**

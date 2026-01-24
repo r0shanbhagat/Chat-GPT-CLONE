@@ -1,17 +1,16 @@
 package com.codentmind.gemlens.data.repository
 
-import com.google.ai.client.generativeai.GenerativeModel
-import com.google.ai.client.generativeai.type.BlockThreshold
-import com.google.ai.client.generativeai.type.GenerationConfig
-import com.google.ai.client.generativeai.type.HarmCategory
-import com.google.ai.client.generativeai.type.SafetySetting
-import com.google.ai.client.generativeai.type.generationConfig
-import com.codentmind.gemlens.GemLensApp
 import com.codentmind.gemlens.domain.repository.GeminiAIRepo
 import com.codentmind.gemlens.utils.Constant.AI_MODEL_NAME
-import com.codentmind.gemlens.utils.datastore
-import com.codentmind.gemlens.utils.getApiKey
-import kotlinx.coroutines.runBlocking
+import com.google.firebase.Firebase
+import com.google.firebase.ai.GenerativeModel
+import com.google.firebase.ai.ai
+import com.google.firebase.ai.type.GenerationConfig
+import com.google.firebase.ai.type.GenerativeBackend
+import com.google.firebase.ai.type.HarmBlockThreshold
+import com.google.firebase.ai.type.HarmCategory
+import com.google.firebase.ai.type.SafetySetting
+import com.google.firebase.ai.type.generationConfig
 
 class GeminiAIRepoImpl : GeminiAIRepo {
 
@@ -22,21 +21,15 @@ class GeminiAIRepoImpl : GeminiAIRepo {
     }
 
     override fun provideSafetySetting(): List<SafetySetting> = listOf(
-        SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE),
-        SafetySetting(HarmCategory.DANGEROUS_CONTENT, BlockThreshold.NONE),
-        SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE),
-        SafetySetting(HarmCategory.SEXUALLY_EXPLICIT, BlockThreshold.NONE),
+        SafetySetting(HarmCategory.HARASSMENT, HarmBlockThreshold.NONE),
+        SafetySetting(HarmCategory.DANGEROUS_CONTENT, HarmBlockThreshold.NONE),
+        SafetySetting(HarmCategory.HATE_SPEECH, HarmBlockThreshold.NONE),
+        SafetySetting(HarmCategory.SEXUALLY_EXPLICIT, HarmBlockThreshold.NONE),
     )
 
     override fun getGenerativeModel(): GenerativeModel {
-        val apiKey = runBlocking { GemLensApp.getInstance().datastore.getApiKey() }
-        return getGenerativeModel(apiKey)
-    }
-
-    override fun getGenerativeModel(apiKey: String): GenerativeModel {
-        return GenerativeModel(
+        return Firebase.ai(backend = GenerativeBackend.googleAI()).generativeModel(
             modelName = AI_MODEL_NAME,
-            apiKey = apiKey,
             generationConfig = provideConfig(),
             safetySettings = provideSafetySetting()
         )

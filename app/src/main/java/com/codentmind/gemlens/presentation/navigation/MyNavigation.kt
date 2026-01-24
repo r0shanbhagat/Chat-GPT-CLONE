@@ -8,8 +8,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.codentmind.gemlens.presentation.screens.AboutScreen
 import com.codentmind.gemlens.presentation.screens.ChatScreen
-import com.codentmind.gemlens.presentation.screens.SetApiScreen
-import com.codentmind.gemlens.presentation.screens.SettingsScreen
 import com.codentmind.gemlens.presentation.viewmodel.MessageViewModel
 
 
@@ -29,14 +27,14 @@ fun MyNavigation(
         composable(Home.route) {
             ChatScreen(viewModel, navController)
         }
-        composable(Settings.route) {
-            SettingsScreen(navController)
-        }
-        composable(SetApi.route) {
-            SetApiScreen(viewModel, navController)
-        }
         composable(About.route) {
             AboutScreen(navController)
         }
+//        composable(Settings.route) {
+//            SettingsScreen(navController)
+//        }
+//        composable(SetApi.route) {
+//            SetApiScreen(viewModel, navController)
+//        }
     }
 }

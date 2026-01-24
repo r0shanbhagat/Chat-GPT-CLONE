@@ -101,11 +101,11 @@ val items = listOf(
         selectedIcon = R.drawable.ic_home_24,
         unselectedIcon = R.drawable.ic_home_24,
     ),
-    DrawerNavigationItem(
-        title = "Settings",
-        selectedIcon = R.drawable.settings_icon,
-        unselectedIcon = R.drawable.settings_icon,
-    ),
+//    DrawerNavigationItem(
+//        title = "Settings",
+//        selectedIcon = R.drawable.settings_icon,
+//        unselectedIcon = R.drawable.settings_icon,
+//    ),
     DrawerNavigationItem(
         title = "About",
         selectedIcon = R.drawable.about_icon,

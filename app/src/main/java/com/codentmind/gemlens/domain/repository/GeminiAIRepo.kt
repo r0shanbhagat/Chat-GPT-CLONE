@@ -1,8 +1,9 @@
 package com.codentmind.gemlens.domain.repository
 
-import com.google.ai.client.generativeai.GenerativeModel
-import com.google.ai.client.generativeai.type.GenerationConfig
-import com.google.ai.client.generativeai.type.SafetySetting
+
+import com.google.firebase.ai.GenerativeModel
+import com.google.firebase.ai.type.GenerationConfig
+import com.google.firebase.ai.type.SafetySetting
 
 interface GeminiAIRepo {
 
@@ -27,16 +28,6 @@ interface GeminiAIRepo {
      * @return A configured [GenerativeModel] instance.
      */
     fun getGenerativeModel(
-    ): GenerativeModel
-
-    /**
-     * Returns a generative model with the specified configurations.
-     *
-     * The name of the model to be used (e.g., "gemini-pro").
-     * @return A configured [GenerativeModel] instance.
-     */
-    fun getGenerativeModel(
-        apiKey: String
     ): GenerativeModel
 
 }

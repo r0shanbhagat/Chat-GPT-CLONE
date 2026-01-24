@@ -2,7 +2,6 @@ package com.codentmind.gemlens.presentation.viewmodel
 
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -22,16 +21,14 @@ import com.codentmind.gemlens.utils.Constant.ROLE_MODEL
 import com.codentmind.gemlens.utils.Constant.ROLE_USER
 import com.codentmind.gemlens.utils.Constant.TAG
 import com.codentmind.gemlens.utils.clearImageDir
-import com.codentmind.gemlens.utils.datastore
 import com.codentmind.gemlens.utils.getAiMediaList
 import com.codentmind.gemlens.utils.getBitmapFromFileName
 import com.codentmind.gemlens.utils.isValidString
 import com.codentmind.gemlens.utils.recycleBitmap
-import com.codentmind.gemlens.utils.storeApiKey
-import com.google.ai.client.generativeai.Chat
-import com.google.ai.client.generativeai.type.Content
-import com.google.ai.client.generativeai.type.TextPart
-import com.google.ai.client.generativeai.type.content
+import com.google.firebase.ai.Chat
+import com.google.firebase.ai.type.Content
+import com.google.firebase.ai.type.TextPart
+import com.google.firebase.ai.type.content
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -295,29 +292,6 @@ class MessageViewModel(
         }
     }
 
-    /**
-     * Validates the provided API key by making a test request to the Gemini AI model.
-     *
-     * This function attempts to initialize the Gemini AI model with the given API key and
-     * sends a simple request. If the request is successful, the key is considered valid and
-     * stored; otherwise, it's considered invalid.
-     *
-     */
-    fun validate(context: Context, apiKey: String) {
-        viewModelScope.launch(dispatcherIO) {
-            _validationState.value = ValidationState.Checking
-            try {
-                val model = geminiAIRepo.getGenerativeModel(apiKey = apiKey)
-                val res = model.generateContent("Hi")
-                if (res.text?.isNotEmpty() == true) {
-                    _validationState.value = ValidationState.Valid
-                    context.datastore.storeApiKey(apiKey)
-                } else _validationState.value = ValidationState.Invalid
-            } catch (e: Exception) {
-                _validationState.value = ValidationState.Invalid
-            }
-        }
-    }
 
     /**
      * Resets the validation state to idle.

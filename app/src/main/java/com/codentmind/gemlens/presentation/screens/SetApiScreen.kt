@@ -55,7 +55,6 @@ import androidx.navigation.NavHostController
 import com.codentmind.gemlens.R
 import com.codentmind.gemlens.data.dataSource.remote.RemoteConfigHelper
 import com.codentmind.gemlens.presentation.navigation.Home
-import com.codentmind.gemlens.presentation.navigation.SetApi
 import com.codentmind.gemlens.presentation.navigation.TopBar
 import com.codentmind.gemlens.presentation.theme.DecentBlue
 import com.codentmind.gemlens.presentation.theme.DecentGreen
@@ -150,11 +149,11 @@ fun SetApiScreen(
                         if (viewModel.isHomeVisit.value == true) {
                             navController.navigateUp()
                         } else {
-                            navController.popBackStack(SetApi.route, true)
+                        //    navController.popBackStack(SetApi.route, true)
                             navController.navigate(Home.route)
                         }
                     } else if (validationState == MessageViewModel.ValidationState.Idle) {
-                        viewModel.validate(context, text.text)
+                       // viewModel.validate(context, text.text)
                     }
                 },
                 shape = RoundedCornerShape(10.dp),
@@ -185,7 +184,7 @@ fun SetApiScreen(
 
             TempApiKeyGenerator {
                 text = TextFieldValue(it)
-                viewModel.validate(context, it)
+                //viewModel.validate(context, it)
             }
 
             Spacer(modifier = Modifier.padding(25.dp))

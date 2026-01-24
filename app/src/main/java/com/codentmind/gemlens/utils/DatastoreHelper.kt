@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.first
 
 
 val Context.datastore by preferencesDataStore("settings")
+
 suspend fun DataStore<Preferences>.storeApiKey(key: String) {
     val apiKey = stringPreferencesKey("API_KEY")
     edit { settings ->

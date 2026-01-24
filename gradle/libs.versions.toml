@@ -18,12 +18,11 @@ activity-compose = "1.12.2"
 navigation-compose = "2.9.6"
 ktor = "2.3.13"
 datastorePreferences = "1.2.0"
-generativeai = "0.9.0"
 materialExtended = "1.7.8"
 room = "2.8.4"
 timber = "5.0.1"
 gms = "4.4.4"
-firebaseBom = "34.7.0"
+firebaseBom = "34.8.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -51,7 +50,6 @@ ktor-content-negotiation = { group = "io.ktor", name = "ktor-client-content-nego
 ktor-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
 ktor-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
-generativeai = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "generativeai" }
 navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastorePreferences" }
 androidx-datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "datastorePreferences" }
@@ -62,6 +60,7 @@ room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 platform-firebase = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-remote-config = { module = "com.google.firebase:firebase-config" }
 firebase-analytic = { module = "com.google.firebase:firebase-analytics" }
+firebase-ai = { module = "com.google.firebase:firebase-ai" }
 
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
 koin-test = { group = "io.insert-koin", name = "koin-test-junit4", version.ref = "koin" }
@@ -74,4 +73,3 @@ room = { id = "androidx.room", version.ref = "room" }
 gms = { id = "com.google.gms.google-services", version.ref = "gms" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-
