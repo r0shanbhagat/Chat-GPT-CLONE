@@ -47,13 +47,14 @@ https://github.com/user-attachments/assets/a3706958-7ae3-40eb-8fdc-890d6c5818e0
 - Generative AI — Powering intelligent, creative app features.
 - Clean Architecture
 - Image picker
+page
 
 **✨ Pre-Requisite**
 ----------
-- Get a Gemini API key from [Here](https://aistudio.google.com/app/u/1/apikey)
+- Sign into the [Firebase console](https://console.firebase.google.com/?authuser=0), and then select your Firebase project.
+- In the Firebase console, go to the [Firebase AI Logic](https://console.firebase.google.com/project/_/ailogic?authuser=0).
+- Set up your project to use a "Gemini API" provider.
 - Download and Place [google-Service.json](https://console.firebase.google.com/u/0/) file inside project app.
-- Enable Remote Configs at Firebase console , To see key/value for remote config .xml is placed inside Asset Directory.
-
 
 # Docs
 https://android-developers.googleblog.com/2023/12/leverage-generative-ai-in-your-android-apps.html
