@@ -33,8 +33,7 @@ Seamlessly combining modern Android development with cutting-edge AI capabilitie
 ![screenshots](https://github.com/user-attachments/assets/5f7691cd-d3b5-4d1d-aab5-2b31208634a0)
 
 # Video
-
-https://github.com/user-attachments/assets/a3706958-7ae3-40eb-8fdc-890d6c5818e0
+https://github.com/user-attachments/assets/61804d6f-27d7-458b-9644-68dec4b6fcff
 
 **🚀 Tech Stack**
 ----------
@@ -63,7 +62,7 @@ https://firebase.google.com/docs/ai-logic/get-started
 You can contribute this project. Just Solve issue or update code and raise PR. I'll do code review and merge your changes into main branch. See Commit message guidelines https://initialcommit.com/blog/git-commit-messages-best-practices
 
 # Licence
-Copyright 2025 Roshan Bhagat
+Copyright 2026 Roshan Bhagat
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
